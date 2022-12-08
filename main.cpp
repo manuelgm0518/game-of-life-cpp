@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <conio.h>
 #include <time.h>
 
@@ -24,6 +25,7 @@ const int FINISH_KEY = 27; // Esc
 const int PAUSE_KEY = 80; // P
 const int RESET_KEY = 82; // R
 const int NEXT_KEY = 78; // N
+const int RANDOM_GENERATE_KEY = 71; // G
 
 const int MOVE_UP_KEY = 87; // W
 const int MOVE_LEFT_KEY = 65; // A
@@ -110,6 +112,18 @@ void generation() {
 	delete[] board_copy;
 }
 
+void random_generation() {
+	board = new bool[BOARD_WIDTH * BOARD_HEIGHT];
+	int y, x;
+	for (y = 0; y < BOARD_HEIGHT; y++) {
+		for (x = 0; x < BOARD_WIDTH; x++) {
+			bool put_cell = rand() % 3 == 0;
+			if (put_cell)
+				set_board_value(x, y, true);
+		}
+	}
+}
+
 void command_reader(char pressed_key) {	
 	switch (int(pressed_key)) {
 	case PAUSE_KEY: paused = !paused; break;
@@ -118,6 +132,10 @@ void command_reader(char pressed_key) {
 	case RESET_KEY: 
 		paused = true;
 		board = new bool[BOARD_WIDTH * BOARD_HEIGHT];
+		break;
+	case RANDOM_GENERATE_KEY:
+		paused = true;
+		random_generation();
 		break;
 	}
 }
@@ -137,7 +155,7 @@ void print_commands() {
 	print_border(201, 205, 187, BOARD_WIDTH * 2 + 1);
 	printf_s("%-*c %3s: Exit  %c %3s: Interact %c Move: %*c\n", padding, 186,  "Esc", 179, "Spc", 179, padding + 1, 186);
 	printf_s("%-*c %3c: %-5s %c %3c: Next     %c   %c   %*c\n", padding, 186, PAUSE_KEY, paused?"Play": "Pause", 179, NEXT_KEY, 179, MOVE_UP_KEY, padding + 1, 186);
-	printf_s("%-*c %3c: Reset %c               %c %c %c %c %*c\n", padding, 186, RESET_KEY, 179, 179, MOVE_LEFT_KEY, MOVE_DOWN_KEY, MOVE_RIGHT_KEY, padding + 1, 186);
+	printf_s("%-*c %3c: Reset %c %3c: Generate %c %c %c %c %*c\n", padding, 186, RESET_KEY, 179, RANDOM_GENERATE_KEY, 179, MOVE_LEFT_KEY, MOVE_DOWN_KEY, MOVE_RIGHT_KEY, padding + 1, 186);
 	print_border(200, 205, 188, BOARD_WIDTH * 2 + 1);
 }
 
@@ -166,6 +184,7 @@ void print_screen() {
 }
 
 int main() {
+	srand(time(NULL));
 	char pressed_key;	
 	while (true) {
 		if (_kbhit()) {
